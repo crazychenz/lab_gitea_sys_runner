@@ -5,7 +5,8 @@
 services:
   gitea_sys_runner:
     image: git.lab/lab/gitea_sys_runner:latest
-    depends_on: [dnsmasq_svc, caddy_svc, gitea_svc]
+    # TODO: Create dependency checker container.
+    #depends_on: [dnsmasq_svc, caddy_svc, gitea_svc]
     build:
       dockerfile_inline: |
         FROM gitea/act_runner:latest
@@ -23,3 +24,7 @@ services:
       - /opt/state/gitea_sys_runner/data:/data
       - /opt/imports/gitea_sys_runner/ssh:/home/root/.ssh
     restart: unless-stopped
+
+
+
+
