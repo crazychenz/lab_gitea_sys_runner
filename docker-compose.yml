@@ -29,7 +29,7 @@ services:
             --instance https://git.lab \
             --token "${RUNNER_TOKEN}" \
             --name sys_runner \
-            --labels sys_runner
+            --labels sys_runner,nodejs,ansible,docker
         fi
     volumes: [ "/opt/state/gitea_sys_runner/data:/data" ]
 
@@ -40,7 +40,7 @@ services:
     build:
       dockerfile_inline: |
         FROM gitea/act_runner:latest
-        RUN apk add -U nodejs
+        RUN apk add -U nodejs ansible docker
         RUN wget --no-check-certificate https://tls.lab/certs/root.crt -O /etc/ssl/certs/lab-root.crt
         RUN cat /etc/ssl/certs/lab-root.crt >> /etc/ssl/certs/ca-certificates.crt
     container_name: gitea_sys_runner
