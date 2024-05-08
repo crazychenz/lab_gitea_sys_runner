@@ -3,10 +3,19 @@
   #    && cat /etc/ssl/certs/lab-intermediate.crt >> /etc/ssl/certs/ca-certificates.crt
 
 services:
+  # Consider: Create dependency checker in init container.
+  gitea_sys_runner_init:
+    image: gitea/act_runner:latest
+    container_name: gitea_sys_runner_init
+    entrypoint: act_runner
+    command: gitea_sys_runner generate-config > /data/config.yaml
+    volumes: [ "/opt/state/gitea_sys_runner/data:/data" ]
+
   gitea_sys_runner:
     image: git.lab/lab/gitea_sys_runner:latest
-    # TODO: Create dependency checker container.
-    #depends_on: [dnsmasq_svc, caddy_svc, gitea_svc]
+    depends_on:
+      gitea_sys_runner_init: { condition: service_completed_successfully }
+
     build:
       dockerfile_inline: |
         FROM gitea/act_runner:latest
@@ -18,13 +27,13 @@ services:
     privileged: true
     environment:
       - CONFIG_FILE=/data/config.yaml
+      - GITEA_INSTANCE_URL="https://git.lab"
+      - GITEA_RUNNER_REGISTRATION_TOKEN="${RUNNER_TOKEN}"
+      - GITEA_RUNNER_NAME="gitea_sys_runner"
+      - GITEA_RUNNER_LABELS="sys_runner"
     # Consider an init container for the ssh keys
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /opt/state/gitea_sys_runner/data:/data
       - /opt/imports/gitea_sys_runner/ssh:/home/root/.ssh
     restart: unless-stopped
-
-
-
-
