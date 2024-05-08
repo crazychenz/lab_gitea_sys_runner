@@ -16,6 +16,8 @@ services:
         
         if [ ! -e /data/config.yaml ]; then
           act_runner generate-config > /data/config.yaml
+          # Remove some very bad default config values
+          sed -i '/ubuntu/d' /data/config.yaml
         fi
 
         if [ ! -e /data/.runner ]; then
