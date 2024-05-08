@@ -11,10 +11,14 @@ services:
     working_dir: /data
     command:
       - |
-        if [ ! -e /data/.runner ]; then
-          wget --no-check-certificate https://tls.lab/certs/root.crt -O /etc/ssl/certs/lab-root.crt
-          cat /etc/ssl/certs/lab-root.crt >> /etc/ssl/certs/ca-certificates.crt
+        wget --no-check-certificate https://tls.lab/certs/root.crt -O /etc/ssl/certs/lab-root.crt
+        cat /etc/ssl/certs/lab-root.crt >> /etc/ssl/certs/ca-certificates.crt
+        
+        if [ ! -e /data/config.yaml ]; then
           act_runner generate-config > /data/config.yaml
+        fi
+
+        if [ ! -e /data/.runner ]; then
           act_runner register --no-interactive \
             --instance https://git.lab \
             --token "${RUNNER_TOKEN}" \
