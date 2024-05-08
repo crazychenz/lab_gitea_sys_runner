@@ -7,8 +7,9 @@ services:
   gitea_sys_runner_init:
     image: gitea/act_runner:latest
     container_name: gitea_sys_runner_init
-    entrypoint: /bin/sh
-    command: /bin/sh -c "act_runner generate-config > /data/config.yaml"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - act_runner generate-config > /data/config.yaml
     volumes: [ "/opt/state/gitea_sys_runner/data:/data" ]
 
   gitea_sys_runner:
