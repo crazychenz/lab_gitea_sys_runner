@@ -11,6 +11,8 @@ services:
     working_dir: /data
     command:
       - |
+        wget --no-check-certificate https://tls.lab/certs/root.crt -O /etc/ssl/certs/lab-root.crt
+        cat /etc/ssl/certs/lab-root.crt >> /etc/ssl/certs/ca-certificates.crt
         act_runner generate-config > /data/config.yaml
         act_runner register --no-interactive \
           --instance https://git.lab \
