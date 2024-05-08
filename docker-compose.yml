@@ -8,8 +8,15 @@ services:
     image: gitea/act_runner:latest
     container_name: gitea_sys_runner_init
     entrypoint: ["/bin/sh", "-c"]
+    working_dir: /data
     command:
-      - act_runner generate-config > /data/config.yaml
+      - |
+        act_runner generate-config > /data/config.yaml
+        act_runner register --no-interactive \
+          --instance https://git.lab \
+          --token "${RUNNER_TOKEN}" \
+          --name sys_runner \
+          --labels sys_runner
     volumes: [ "/opt/state/gitea_sys_runner/data:/data" ]
 
   gitea_sys_runner:
@@ -29,7 +36,7 @@ services:
     environment:
       - CONFIG_FILE=/data/config.yaml
       - GITEA_INSTANCE_URL="https://git.lab"
-      - GITEA_RUNNER_REGISTRATION_TOKEN="${RUNNER_TOKEN}"
+      - GITEA_RUNNER_REGISTRATION_TOKEN=
       - GITEA_RUNNER_NAME="gitea_sys_runner"
       - GITEA_RUNNER_LABELS="sys_runner"
     # Consider an init container for the ssh keys
