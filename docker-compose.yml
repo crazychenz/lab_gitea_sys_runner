@@ -11,14 +11,16 @@ services:
     working_dir: /data
     command:
       - |
-        wget --no-check-certificate https://tls.lab/certs/root.crt -O /etc/ssl/certs/lab-root.crt
-        cat /etc/ssl/certs/lab-root.crt >> /etc/ssl/certs/ca-certificates.crt
-        act_runner generate-config > /data/config.yaml
-        act_runner register --no-interactive \
-          --instance https://git.lab \
-          --token "${RUNNER_TOKEN}" \
-          --name sys_runner \
-          --labels sys_runner
+        if [ ! -e /data/.runner ]; then
+          wget --no-check-certificate https://tls.lab/certs/root.crt -O /etc/ssl/certs/lab-root.crt
+          cat /etc/ssl/certs/lab-root.crt >> /etc/ssl/certs/ca-certificates.crt
+          act_runner generate-config -c /data/config.yaml
+          act_runner register --no-interactive \
+            --instance https://git.lab \
+            --token "${RUNNER_TOKEN}" \
+            --name sys_runner \
+            --labels sys_runner
+        fi
     volumes: [ "/opt/state/gitea_sys_runner/data:/data" ]
 
   gitea_sys_runner:
@@ -37,10 +39,6 @@ services:
     privileged: true
     environment:
       - CONFIG_FILE=/data/config.yaml
-      - GITEA_INSTANCE_URL="https://git.lab"
-      - GITEA_RUNNER_REGISTRATION_TOKEN=
-      - GITEA_RUNNER_NAME="gitea_sys_runner"
-      - GITEA_RUNNER_LABELS="sys_runner"
     # Consider an init container for the ssh keys
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
